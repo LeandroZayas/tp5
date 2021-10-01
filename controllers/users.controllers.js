@@ -1,35 +1,31 @@
-// Librería para encriptar información
 const bcryptjs = require('bcryptjs');
-
-// Requerimos el modelo de datos de usuario para instanciar nuevos documentos
-
 const User = require('../models/Users');
 
 const ctrlUsers = {};
 
+// MÉTODO GET ----------------------------------------------------
 // Obtener usuarios activos
 ctrlUsers.getUsers = async (req, res) => {
     try {
         const usuarios = await User.find({});
         return res.json(usuarios);
     } catch (error) {
-        console.log('Error al obtener usuarios: ', error);
         return res.status(500).json({
             msg: 'Error al obtener usuarios'
         })
     }
 };
 
-// Crear un usuario
+// MÉTODO POST ----------------------------------------------------
+// Crear usuario
 ctrlUsers.createUser = async (req, res) => {
     let newUser = {};
 
-    // Desestructuramos la información recibida del cliente
+// Desestructuramos la información recibida del cliente
     const { email,username, password, role, ...otros_datos_recibidos } = req.body;
 
-    // Se instancia un nuevo usuario
+// Se instancia un nuevo usuario
     try {
-
         newUser = new User({
             email,
             username,
@@ -37,18 +33,13 @@ ctrlUsers.createUser = async (req, res) => {
             role
         })
 
-        // Se encripta la contraseña recibida
-/*         const salt = bcryptjs.genSaltSync();
-        newUser.password = bcryptjs.hashSync(password, salt); */
-
-        // Se alamacena el nuevo usuario en la base de datos
+// Se alamacena el nuevo usuario en la base de datos
         await newUser.save();
         return res.json({
             msg: 'Usuario creado exitosamente!',
             usuario: newUser
         });
     } catch (error) {
-        console.log('No se pudo crear el usuario, vuelva a intentarlo: ', error);
         return res.status(500).json({
             msg: 'No se pudo crear el usuario, vuelva a intentarlo'
         })
@@ -57,24 +48,30 @@ ctrlUsers.createUser = async (req, res) => {
 
 }
 
+// MÉTODO PUT ----------------------------------------------------
 // Editar usuario a través de su id.
 ctrlUsers.editUser = async (req, res) => {
 
-    const { id } = req.params;
 
+//Recimbimos los datos
+    const { id } = req.params;
     const { username, password, role, ...resto } = req.body;
 
+
+//Encriptar contraseña
     if(password){
         const salt = bcryptjs.genSaltSync();
         resto.password = bcryptjs.hashSync(password, salt); 
     }
 
+//Actualizamos usuario mediante ID
     const userUpdated = await User.findByIdAndUpdate(id, {
         username,
         password: resto.password,
         role
     })
 
+//Respuesta
     return res.json({
         msg:'Datos actualizados correctamente!',
         user: userUpdated
@@ -82,14 +79,19 @@ ctrlUsers.editUser = async (req, res) => {
 
 }
 
+//MÉTODO DELETE -------------------------------------------------------
 // Eliminar usuario a través de su id.
 ctrlUsers.deleteUser = async (req, res) => {
+
+//Recibimos ID
     const { id } = req.params;
 
+//Eliminar mediante ID recibido (Eliminación Lógica)
     const userDeleted = await User.findByIdAndUpdate(id, {
        active: false
     })
 
+//Respuesta
     return res.json({
         msg:'Usuario eliminado correctamente!',
         user: userDeleted

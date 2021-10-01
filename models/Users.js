@@ -1,6 +1,8 @@
+//Requerimientos
 const { model, Schema } = require('mongoose');
 const bcrypt = require('bcrypt-nodejs')
 
+//Esquema de usuarios
 const UserSchema = new Schema({
     email: { type: String, required: true },
     username: { type: String, required: true },
@@ -10,12 +12,16 @@ const UserSchema = new Schema({
     sigUpDate: { type: Date, default: Date.now() }
 });
 
+//Datos que no se van a mostrar
 UserSchema.methods.toJSON = function () {
     const { __v, password, _id, ...usuario } = this.toObject();
+
+//Renombro el _id para no brindar informacion de más   
     usuario.uid = _id;
     return usuario;
 };
 
+//Encriptar contraseña
 UserSchema.pre('save', function (next) {
     const user = this
     if (!user.isModified('password')) return next()
