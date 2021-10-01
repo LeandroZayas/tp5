@@ -57,7 +57,7 @@ router.put('/:id', [
     
     check('role').custom(rolValido),
 
-    check('username', 'El nombre de usuario debe ser un e-mail')
+    check('email', 'Debe ser un e-mail')
     .isEmail(),
     
     validarCampos
